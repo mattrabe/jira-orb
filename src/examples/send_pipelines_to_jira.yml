@@ -1,0 +1,52 @@
+description: >
+  Send pipeline job statuses to Jira as a part of your CI config.
+  A 'JIRA_WEBHOOK_URL' environment variable must be provided.
+usage:
+  version: 2.1
+  orbs:
+    jira: circleci/jira@2.0
+    node: circleci/node@5.1
+  jobs:
+    build:
+      executor: node/default
+      steps:
+        - checkout
+        - node/install-packages
+        - run:
+            name: Run tests
+            command: npm test
+        - jira/notify:
+            pipeline_id: "<< pipeline.id >>"
+            pipeline_number: "<< pipeline.number >>"
+    deploy:
+      executor: node/default
+      steps:
+        - checkout
+        - node/install-packages
+        - run:
+            name: Run Deployment
+            command: npm run deploy
+        - jira/notify:
+            job_type: deployment
+            environment: staging
+            environment_type: staging
+            pipeline_id: "<< pipeline.id >>"
+            pipeline_number: "<< pipeline.number >>"
+            service_id: 123456
+  workflows:
+    main:
+      jobs:
+        - build:
+            context: JIRA_WEBHOOK
+            filters:
+              tags:
+                only: /.*/
+        - deploy:
+            requires:
+              - build
+            context: JIRA_WEBHOOK
+            filters:
+              branches:
+                ignore: /.*/
+              tags:
+                only: /^v.*/

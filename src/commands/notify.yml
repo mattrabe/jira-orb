@@ -1,0 +1,79 @@
+description: >
+  Send a notification to Jira for a build or deployment.
+# What will this command do?
+# Descriptions should be short, simple, and clear.
+parameters:
+  job_type:
+    description: Indicates if job should be treated as build or deployment in Jira dev panel. Note that Deployments require additional details.
+    default: "build"
+    type: enum
+    enum: ["build", "deployment"]
+  environment:
+    description: For deployments. Indicates the name of target environment. By default the name of the CircleCI Job is used.
+    default: "${CIRCLE_JOB}"
+    type: string
+  environment_type:
+    description: Indicates the category of target environment as defined by Atlassian
+    type: enum
+    enum: ["production", "staging", "testing", "development", "unmapped"]
+    default: "development"
+  service_id:
+    description: Specify the JSD service ID for the project this notification targets. This will be sent with deployment notifications.
+    type: string
+    default: "${JIRA_SERVICE_ID}"
+  issue_regexp:
+    description: Override the default project key regexp if your project keys follow a different format. Your key must be in the [1] capture group.
+    default: ([A-Z]{2,30}-[0-9]+)
+    type: string
+  pipeline_id:
+    description: Pass in the pipeline id via CircleCI pipeline parameters. This must be specified manually. Refer to usage example.
+    type: string
+  pipeline_number:
+    description: Pass in the pipeline number via CircleCI pipeline parameters. This must be specified manually. Refer to usage example.
+    type: integer
+  oidc_token:
+    description: Customize the OpenID Connect token used to authenticate with Jira. This most often will not need to be changed.
+    type: string
+    default: "${CIRCLE_OIDC_TOKEN_V2}"
+  webhook_url:
+    description: Get your webhook URL from the management panel in the CircleCI for Jira app in Atlassian.
+    type: string
+    default: "${JIRA_WEBHOOK_URL}"
+  debug:
+    description: "Enable additional logging if you are running into issues. A log will be generated at '/tmp/circleci_jira.log'."
+    type: boolean
+    default: false
+  ignore_errors:
+    description: "Ignore errors. Errors posting to Atlassian will not result in failed builds unless disabled."
+    type: boolean
+    default: true
+steps:
+  - run:
+      when: on_fail
+      name: "Jira - Detecting Job Status: Failed"
+      environment:
+        JOB_STATUS: "failed"
+      command: <<include(scripts/detect.sh)>>
+  - run:
+      when: on_success
+      name: "Jira - Detecting Job Status: Successful"
+      environment:
+        JOB_STATUS: "successful"
+      command: <<include(scripts/detect.sh)>>
+  - run:
+      environment:
+        JIRA_VAL_JOB_TYPE: <<parameters.job_type>>
+        JIRA_VAL_ENVIRONMENT: <<parameters.environment>>
+        JIRA_VAL_ENVIRONMENT_TYPE: <<parameters.environment_type>>
+        JIRA_VAL_SERVICE_ID: <<parameters.service_id>>
+        JIRA_VAL_ISSUE_REGEXP: <<parameters.issue_regexp>>
+        JIRA_VAL_PIPELINE_ID: <<parameters.pipeline_id>>
+        JIRA_VAL_PIPELINE_NUMBER: <<parameters.pipeline_number>>
+        JIRA_VAL_JIRA_WEBHOOK_URL: <<parameters.webhook_url>>
+        JIRA_VAL_JIRA_OIDC_TOKEN: <<parameters.oidc_token>>
+        JSON_BUILD_PAYLOAD: <<include(scripts/build_payload.json)>>
+        JSON_DEPLOYMENT_PAYLOAD: <<include(scripts/deployment_payload.json)>>
+        JIRA_BOOL_DEBUG: <<parameters.debug>>
+        JIRA_BOOL_IGNORE_ERRORS: <<parameters.ignore_errors>>
+      name: Notify Jira
+      command: <<include(scripts/notify.sh)>>
