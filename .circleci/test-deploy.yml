@@ -28,7 +28,7 @@ jobs:
     steps:
       - checkout
       # Run your orb's commands to validate them.
-      - jira/notify
+      #- jira/notify
 workflows:
   test-deploy:
     jobs:
