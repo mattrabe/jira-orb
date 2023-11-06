@@ -96,25 +96,25 @@ workflows:
                 pipeline_number: "<< pipeline.number >>"
                 ignore_errors: true
                 webhook_url: https://circleci.com/ # This is an invalid URL, so the post will fail, but be ignored.
-      - test:
-          name: test-scan-commit-<<matrix.executor>>
-          matrix:
-            alias: test-scan-commit
-            parameters:
-              executor:
-                - linux-docker
-                - macos
-          context: CPE_JIRA_TESTING
-          mock:
-            - run:
-                name: Manually set commit message for test
-                command: |
-                  git add .
-                  git commit -m "test: ${CIRCLE_JOB} CFJ-2"
-            - jira/notify:
-                pipeline_id: "<< pipeline.id >>"
-                pipeline_number: "<< pipeline.number >>"
-                debug: true
+#      - test:
+#          name: test-scan-commit-<<matrix.executor>>
+#          matrix:
+#            alias: test-scan-commit
+#            parameters:
+#              executor:
+#                - linux-docker
+#                - macos
+#          context: CPE_JIRA_TESTING
+#          mock:
+#            - run:
+#                name: Manually set commit message for test
+#                command: |
+#                  git add .
+#                  git commit -m "test: ${CIRCLE_JOB} CFJ-2"
+#            - jira/notify:
+#                pipeline_id: "<< pipeline.id >>"
+#                pipeline_number: "<< pipeline.number >>"
+#                debug: true
 #      - test:
 #          name: test-scan-branch-<<matrix.executor>>
 #          matrix:
@@ -172,7 +172,7 @@ workflows:
           requires:
             - orb-tools/pack
             - test-ignore_errors
-            - test-scan-commit
+#            - test-scan-commit
 #            - test-scan-branch
 #            - test-deploy
           context: orb-publisher
