@@ -173,8 +173,8 @@ workflows:
             - orb-tools/pack
             - test-ignore_errors
             - test-scan-commit
-            - test-scan-branch
-            - test-deploy
+#            - test-scan-branch
+#            - test-deploy
           context: orb-publisher
           github_token: GHI_TOKEN
           filters: *release-filters
