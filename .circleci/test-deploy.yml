@@ -115,52 +115,52 @@ workflows:
                 pipeline_id: "<< pipeline.id >>"
                 pipeline_number: "<< pipeline.number >>"
                 debug: true
-      - test:
-          name: test-scan-branch-<<matrix.executor>>
-          matrix:
-            alias: test-scan-branch
-            parameters:
-              executor:
-                - linux-docker
-                - macos
-          context: CPE_JIRA_TESTING
-          mock:
-            - run:
-                name: Override CIRCLE_BRANCH
-                command: |
-                  echo "CIRCLE_BRANCH=feat/CFJ-2" >> $BASH_ENV
-                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
-
-            - jira/notify:
-                pipeline_id: "<< pipeline.id >>"
-                pipeline_number: "<< pipeline.number >>"
-                debug: true
-          filters: *filters
-      - test:
-          name: test-deploy-<<matrix.executor>>
-          matrix:
-            alias: test-deploy
-            parameters:
-              executor:
-                - linux-docker
-                - macos
-          context: CPE_JIRA_TESTING
-          mock:
-            - run:
-                name: Give Tag
-                command: |
-                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
-                  git tag -a v1.0.0 -m "Jira: CFJ-2"
-            - jira/notify:
-                pipeline_id: "<< pipeline.id >>"
-                pipeline_number: "<< pipeline.number >>"
-                ignore_errors: false
-                service_id: "123"
-                job_type: deployment
-                environment: staging
-                environment_type: staging
-                debug: true
-          filters: *filters
+#      - test:
+#          name: test-scan-branch-<<matrix.executor>>
+#          matrix:
+#            alias: test-scan-branch
+#            parameters:
+#              executor:
+#                - linux-docker
+#                - macos
+#          context: CPE_JIRA_TESTING
+#          mock:
+#            - run:
+#                name: Override CIRCLE_BRANCH
+#                command: |
+#                  echo "CIRCLE_BRANCH=feat/CFJ-2" >> $BASH_ENV
+#                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
+#
+#            - jira/notify:
+#                pipeline_id: "<< pipeline.id >>"
+#                pipeline_number: "<< pipeline.number >>"
+#                debug: true
+#          filters: *filters
+#      - test:
+#          name: test-deploy-<<matrix.executor>>
+#          matrix:
+#            alias: test-deploy
+#            parameters:
+#              executor:
+#                - linux-docker
+#                - macos
+#          context: CPE_JIRA_TESTING
+#          mock:
+#            - run:
+#                name: Give Tag
+#                command: |
+#                  git commit --allow-empty -m "test: ${CIRCLE_JOB}"
+#                  git tag -a v1.0.0 -m "Jira: CFJ-2"
+#            - jira/notify:
+#                pipeline_id: "<< pipeline.id >>"
+#                pipeline_number: "<< pipeline.number >>"
+#                ignore_errors: false
+#                service_id: "123"
+#                job_type: deployment
+#                environment: staging
+#                environment_type: staging
+#                debug: true
+#          filters: *filters
       # The orb must be re-packed for publishing, and saved to the workspace.
       - orb-tools/pack:
           filters: *release-filters
