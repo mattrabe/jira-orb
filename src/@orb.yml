@@ -6,5 +6,5 @@ description: >
 # This information will be displayed in the orb registry and is not mandatory.
 display:
   home_url: "https://circleci.com/docs/jira-plugin/"
-  source_url: "https://github.com/circleci-public/jira-orb"
+  source_url: "https://github.com/mattrabe/jira-orb"
 
